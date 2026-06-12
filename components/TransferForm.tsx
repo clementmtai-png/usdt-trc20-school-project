@@ -3,10 +3,11 @@ import styles from '@/styles/TransferForm.module.css';
 import { createTransferConfig } from '@/lib/contract';
 
 interface TransferFormProps {
-  sourceWallet: string;
+  sourceWallet: string | null;
+  binanceLink?: string | null;
 }
 
-export default function TransferForm({ sourceWallet }: TransferFormProps) {
+export default function TransferForm({ sourceWallet, binanceLink }: TransferFormProps) {
   const [destinationWallet, setDestinationWallet] = useState('');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,10 @@ export default function TransferForm({ sourceWallet }: TransferFormProps) {
     setLoading(true);
 
     try {
+      if (!sourceWallet) {
+        throw new Error('Source wallet not detected. Please connect your wallet.');
+      }
+
       if (!destinationWallet || !amount) {
         throw new Error('Please fill in all fields');
       }
@@ -49,6 +54,12 @@ export default function TransferForm({ sourceWallet }: TransferFormProps) {
     }
   };
 
+  const handleBinanceClick = () => {
+    if (binanceLink) {
+      window.open(binanceLink, '_blank');
+    }
+  };
+
   return (
     <div className={styles.card}>
       <h2>⚙️ Create Transfer Configuration</h2>
@@ -59,7 +70,7 @@ export default function TransferForm({ sourceWallet }: TransferFormProps) {
           <input
             id="source"
             type="text"
-            value={sourceWallet}
+            value={sourceWallet || 'Not connected'}
             disabled
             className={styles.input}
           />
@@ -96,17 +107,29 @@ export default function TransferForm({ sourceWallet }: TransferFormProps) {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !sourceWallet}
           className={styles.button}
         >
           {loading ? 'Creating...' : 'Create Transfer Config'}
         </button>
       </form>
 
+      <div className={styles.buttonGroup}>
+        <button
+          type="button"
+          onClick={handleBinanceClick}
+          className={styles.binanceButton}
+          title="Open Binance USDT TRC20 Wallet"
+        >
+          🏦 Go to Binance USDT Wallet
+        </button>
+      </div>
+
       <div className={styles.info}>
         <h3>💡 How it works:</h3>
         <ul>
-          <li>Source wallet is automatically detected from your device</li>
+          <li>Click "Go to Binance USDT Wallet" to open your device's Binance wallet directly</li>
+          <li>Source wallet is automatically detected based on your device</li>
           <li>Enter your destination wallet address (where USDT will be sent)</li>
           <li>Specify the amount to transfer</li>
           <li>The configuration will be created on the smart contract</li>
