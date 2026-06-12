@@ -73,6 +73,36 @@
   cursor: not-allowed;
 }
 
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.binanceButton {
+  flex: 1;
+  min-width: 200px;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f7931a 0%, #f0a904 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.binanceButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(247, 147, 26, 0.3);
+}
+
+.binanceButton:active {
+  transform: translateY(0);
+}
+
 .error {
   padding: 1rem;
   background: #fee;
