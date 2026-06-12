@@ -1,8 +1,8 @@
 .card {
-  background: white;
+  background: #f9f9f9;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e0e0e0;
 }
 
 .card h2 {
@@ -46,7 +46,7 @@
 }
 
 .input:disabled {
-  background: #f5f5f5;
+  background: #f0f0f0;
   color: #999;
   cursor: not-allowed;
 }
@@ -103,6 +103,50 @@
   transform: translateY(0);
 }
 
+.transactionDetails {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+  margin-bottom: 1rem;
+}
+
+.transactionDetails h4 {
+  margin: 0 0 1rem 0;
+  color: #667eea;
+  font-size: 0.95rem;
+}
+
+.detailsRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.detailsRow.total {
+  border-bottom: none;
+  border-top: 2px solid #e0e0e0;
+  font-weight: 600;
+  color: #333;
+}
+
+.amount {
+  color: #333;
+  font-weight: 500;
+}
+
+.fee {
+  color: #ff9800;
+}
+
+.remaining {
+  color: #4caf50;
+  font-weight: 600;
+}
+
 .error {
   padding: 1rem;
   background: #fee;
@@ -119,10 +163,11 @@
   border-radius: 6px;
   color: #3c3;
   font-size: 0.9rem;
+  white-space: pre-wrap;
 }
 
 .info {
-  background: #f0f4ff;
+  background: white;
   padding: 1.5rem;
   border-radius: 6px;
   border-left: 4px solid #667eea;
