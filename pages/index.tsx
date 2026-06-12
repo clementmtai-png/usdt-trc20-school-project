@@ -34,7 +34,10 @@ export default function Home() {
           
           {isConnected && (
             <>
-              <TransferForm sourceWallet={deviceWallet.address} />
+              <TransferForm 
+                sourceWallet={deviceWallet.address} 
+                binanceLink={deviceWallet.binanceLink}
+              />
               <TransactionHistory />
             </>
           )}
