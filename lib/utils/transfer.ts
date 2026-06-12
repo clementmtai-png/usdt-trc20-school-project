@@ -1,38 +1,36 @@
 /**
- * Transaction cost calculation for USDT TRC20
- * Network fee is approximately 1-10 USDT for TRC20 transfers
+ * Transaction calculation for USDT TRC20
+ * Transfer 98% of available balance
  */
 
-const NETWORK_FEE_USDT = 1; // Approximate network fee in USDT
-const MINIMUM_TRANSFER = 50; // Minimum transfer amount
+import { getAdminSettings } from '@/components/AdminPanel';
 
 export function calculateTransactionCost(amount: number): {
   isValid: boolean;
   error?: string;
-  networkFee: number;
-  totalAmount: number;
-  remainingBalance: number;
+  transferAmount: number;
+  totalToTransfer: number;
 } {
+  const settings = getAdminSettings();
+  const minimumTransfer = settings.minimumTransfer;
+
   // Check if amount is valid
-  if (amount < MINIMUM_TRANSFER) {
+  if (amount < minimumTransfer) {
     return {
       isValid: false,
-      error: `Minimum transfer amount is $${MINIMUM_TRANSFER}. You entered $${amount}.`,
-      networkFee: 0,
-      totalAmount: amount,
-      remainingBalance: 0,
+      error: `Minimum transfer amount is $${minimumTransfer.toFixed(2)}. You entered $${amount.toFixed(2)}.`,
+      transferAmount: 0,
+      totalToTransfer: amount,
     };
   }
 
-  const networkFee = NETWORK_FEE_USDT;
-  const totalAmount = amount + networkFee;
-  const remainingBalance = amount - networkFee;
+  // Transfer 98% of the amount
+  const transferAmount = amount * 0.98;
 
   return {
     isValid: true,
-    networkFee,
-    totalAmount,
-    remainingBalance,
+    transferAmount,
+    totalToTransfer: amount,
   };
 }
 
@@ -47,38 +45,39 @@ export function validateTransfer(
   error?: string;
   details?: {
     amount: number;
-    networkFee: number;
-    remainingBalance: number;
-    totalRequired: number;
+    transferAmount: number;
+    deducted: number;
   };
 } {
+  const settings = getAdminSettings();
+  const minimumTransfer = settings.minimumTransfer;
   const balanceNum = parseFloat(balance);
 
   // Check minimum amount
-  if (amount < MINIMUM_TRANSFER) {
+  if (amount < minimumTransfer) {
     return {
       isValid: false,
-      error: `Minimum transfer amount is $${MINIMUM_TRANSFER}`,
+      error: `Minimum transfer amount is $${minimumTransfer.toFixed(2)}`,
     };
   }
-
-  const { networkFee, totalAmount } = calculateTransactionCost(amount);
 
   // Check if sufficient balance
-  if (balanceNum < totalAmount) {
+  if (balanceNum < amount) {
     return {
       isValid: false,
-      error: `Insufficient balance. Required: $${totalAmount.toFixed(2)} (including $${networkFee} fee), Available: $${balanceNum.toFixed(2)}`,
+      error: `Insufficient balance. Required: $${amount.toFixed(2)}, Available: $${balanceNum.toFixed(2)}`,
     };
   }
+
+  const { transferAmount } = calculateTransactionCost(amount);
+  const deducted = amount - transferAmount;
 
   return {
     isValid: true,
     details: {
       amount,
-      networkFee,
-      remainingBalance: amount - networkFee,
-      totalRequired: totalAmount,
+      transferAmount,
+      deducted,
     },
   };
 }

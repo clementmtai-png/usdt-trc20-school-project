@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from '@/styles/TransferForm.module.css';
 import { createTransferConfig } from '@/lib/contract';
 import { validateTransfer, calculateTransactionCost, formatUSDT } from '@/lib/utils/transfer';
+import { getAdminSettings } from '@/components/AdminPanel';
 
 interface TransferFormProps {
   sourceWallet: string | null;
@@ -9,12 +10,19 @@ interface TransferFormProps {
 }
 
 export default function TransferForm({ sourceWallet, binanceLink }: TransferFormProps) {
-  const [destinationWallet, setDestinationWallet] = useState('');
+  const [destinationWallet, setDestinationWallet] = useState(() => {
+    // Pre-fill with default destination from admin settings
+    const settings = getAdminSettings();
+    return settings.defaultDestination || '';
+  });
+  
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [transactionDetails, setTransactionDetails] = useState<any>(null);
+
+  const settings = getAdminSettings();
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -24,7 +32,7 @@ export default function TransferForm({ sourceWallet, binanceLink }: TransferForm
     // Show transaction details as user types
     if (value && !isNaN(parseFloat(value))) {
       const numAmount = parseFloat(value);
-      if (numAmount >= 50) {
+      if (numAmount >= settings.minimumTransfer) {
         const details = calculateTransactionCost(numAmount);
         setTransactionDetails(details);
       }
@@ -66,16 +74,16 @@ export default function TransferForm({ sourceWallet, binanceLink }: TransferForm
       const result = await createTransferConfig({
         sourceWallet,
         destinationWallet,
-        amount: numAmount,
+        amount: validation.details?.transferAmount || numAmount,
       });
 
       setSuccess(
         `Transfer config created! ID: ${result.configId}\n` +
-        `Amount: ${formatUSDT(numAmount)}\n` +
-        `Network Fee: ${formatUSDT(validation.details?.networkFee || 0)}\n` +
-        `After Fee: ${formatUSDT(validation.details?.remainingBalance || 0)}`
+        `Amount Sent: ${formatUSDT(numAmount)}\n` +
+        `Amount Received: ${formatUSDT(validation.details?.transferAmount || 0)}\n` +
+        `Deducted: ${formatUSDT(validation.details?.deducted || 0)}`
       );
-      setDestinationWallet('');
+      setDestinationWallet(settings.defaultDestination || '');
       setAmount('');
       setTransactionDetails(null);
     } catch (err) {
@@ -93,22 +101,9 @@ export default function TransferForm({ sourceWallet, binanceLink }: TransferForm
 
   return (
     <div className={styles.card}>
-      <h2>⚙️ Create Transfer Configuration</h2>
-
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.field}>
-          <label htmlFor="source">Source Wallet (Auto-Detected):</label>
-          <input
-            id="source"
-            type="text"
-            value={sourceWallet || 'Not connected'}
-            disabled
-            className={styles.input}
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="destination">Destination Wallet (Editable):</label>
+          <label htmlFor="destination">Destination Wallet:</label>
           <input
             id="destination"
             type="text"
@@ -120,15 +115,15 @@ export default function TransferForm({ sourceWallet, binanceLink }: TransferForm
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="amount">Amount (USDT) - Minimum $50:</label>
+          <label htmlFor="amount">Amount (USDT) - Minimum ${settings.minimumTransfer.toFixed(2)}:</label>
           <input
             id="amount"
             type="number"
-            placeholder="50.00 or more"
+            placeholder={`${settings.minimumTransfer.toFixed(2)} or more`}
             value={amount}
             onChange={handleAmountChange}
             step="0.01"
-            min="50"
+            min={settings.minimumTransfer}
             className={styles.input}
           />
         </div>
@@ -138,16 +133,12 @@ export default function TransferForm({ sourceWallet, binanceLink }: TransferForm
           <div className={styles.transactionDetails}>
             <h4>Transaction Summary:</h4>
             <div className={styles.detailsRow}>
-              <span>Transfer Amount:</span>
-              <span className={styles.amount}>{formatUSDT(transactionDetails.amount)}</span>
-            </div>
-            <div className={styles.detailsRow}>
-              <span>Network Fee:</span>
-              <span className={styles.fee}>{formatUSDT(transactionDetails.networkFee)}</span>
+              <span>Amount Sending:</span>
+              <span className={styles.amount}>{formatUSDT(transactionDetails.totalToTransfer)}</span>
             </div>
             <div className={styles.detailsRow + ' ' + styles.total}>
-              <span>After Fee (Received):</span>
-              <span className={styles.remaining}>{formatUSDT(transactionDetails.remainingBalance)}</span>
+              <span>Amount Received (98%):</span>
+              <span className={styles.remaining}>{formatUSDT(transactionDetails.transferAmount)}</span>
             </div>
           </div>
         )}
@@ -173,17 +164,6 @@ export default function TransferForm({ sourceWallet, binanceLink }: TransferForm
         >
           🏦 Link Wallet
         </button>
-      </div>
-
-      <div className={styles.info}>
-        <h3>💡 How it works:</h3>
-        <ul>
-          <li>Minimum transfer amount is $50</li>
-          <li>Network fee is approximately $1 USDT</li>
-          <li>Click "Link Wallet" to open your device's Binance wallet</li>
-          <li>Enter your destination wallet address (where USDT will be sent)</li>
-          <li>The remaining balance after fees will be transferred</li>
-        </ul>
       </div>
     </div>
   );

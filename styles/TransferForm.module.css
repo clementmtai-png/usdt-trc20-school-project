@@ -1,14 +1,8 @@
 .card {
-  background: #f9f9f9;
+  background: white;
   border-radius: 12px;
   padding: 2rem;
   border: 1px solid #e0e0e0;
-}
-
-.card h2 {
-  margin-top: 0;
-  color: #333;
-  margin-bottom: 1.5rem;
 }
 
 .form {
@@ -82,13 +76,13 @@
 
 .binanceButton {
   flex: 1;
-  min-width: 200px;
-  padding: 1rem;
+  min-width: 100%;
+  padding: 1.2rem;
   background: linear-gradient(135deg, #f7931a 0%, #f0a904 100%);
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -104,7 +98,7 @@
 }
 
 .transactionDetails {
-  background: white;
+  background: #f9f9f9;
   padding: 1rem;
   border-radius: 6px;
   border-left: 4px solid #667eea;
@@ -121,7 +115,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
   color: #555;
   font-size: 0.9rem;
 }
@@ -136,10 +130,6 @@
 .amount {
   color: #333;
   font-weight: 500;
-}
-
-.fee {
-  color: #ff9800;
 }
 
 .remaining {
